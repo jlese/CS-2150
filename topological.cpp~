@@ -1,0 +1,153 @@
+//Jack Lesemann, jwl4vg, 5/2/2021
+//Pre-lab 11
+
+#include <iostream>
+#include <fstream>
+#include <queue>
+#include <vector>
+#include <unordered_map>
+using namespace std;
+
+class vertex {
+public:
+  vertex();
+  vertex(string s);
+  string data;
+  int indegree;
+  vector<vertex*> adjacents;
+};
+
+vertex::vertex() {
+  data="";
+  indegree=0;
+}
+
+vertex::vertex(string s) {
+  this->data = s;
+  indegree = 0;
+}
+
+void topSort(vector<vertex*> verts) {
+  queue<vertex*> q;
+  int counter =0;
+  vertex* v;
+
+
+  
+  for(int i = 0; i < verts.size(); i++) {
+    if(verts[i]->indegree == 0) {
+      //cout << verts[i]->data <<endl;
+      q.push(verts[i]);
+    }
+  }
+
+  while(!q.empty()) {
+    v = q.front();
+    q.pop();
+
+    cout << v->data << " "<<endl;
+    for (int j = 0; j < v->adjacents.size(); j++) {
+      cout<< "edge to " << v->adjacents[j]->data<<endl;
+      if (--v->adjacents[j]->indegree == 0) {
+        //q.push(v->adjacents[j]);
+	for (int l = 0; l < verts.size(); l++) {
+	  if (verts[l]->data == v->adjacents[j]->data) {
+	    q.push(verts[l]);
+	  } else {
+	    q.push( v->adjacents[j]);
+	  }
+
+	  
+	}
+      }
+    }
+    counter++;
+  }
+  cout<< endl;
+  if (counter != verts.size())
+    cout << "Cycle found: " << endl;
+      
+  
+
+}
+
+
+int main (int argc, char** argv) {
+  // verify the correct number of parameters
+  if (argc != 2) {
+    cout << "Must supply the input file name as the one and only parameter" << endl;
+    exit(1);
+  }
+
+  // attempt to open the supplied file
+  ifstream file(argv[1], ifstream::binary);
+  // report any problems opening the file and then exit
+  if (!file.is_open()) {
+    cout << "Unable to open file '" << argv[1] << "'." << endl;
+    exit(2);
+  }
+  
+  // read in two strings
+  
+
+  vector<vertex*> vertices;
+  string s1, s2;
+  unordered_map<string, vector<string>> graph;
+  unordered_map<string, int> indegrees;
+  while (file >> s1) {
+    
+    file >> s2;
+    if (s1 != "0") {
+      unordered_map<string,vector<string>>::const_iterator itr = graph.find(s1);
+      unordered_map<string,int>::const_iterator itr2 = indegrees.find(s2);
+      if (itr != graph.end()) {
+        graph.at(s1).push_back(s2);
+      } else {
+	graph.emplace(s1, vector<string>());
+	graph.at(s1).push_back(s2);
+      }
+
+      if (itr2 != indegrees.end()) {
+	indegrees.at(s2)++;
+      } else {
+	indegrees.emplace(s2, 1);
+      }
+      
+    }
+
+    
+  }
+
+  for (auto itr = graph.begin(); itr != graph.end(); itr++) {
+    vertex* v1 = new vertex(itr->first);
+    unordered_map<string,int>::const_iterator itr3 = indegrees.find(itr->first);
+    if (itr3 != indegrees.end()) {
+      v1->indegree = indegrees.at(itr->first);
+    }
+    
+    for (int i =0; i < itr->second.size(); i++) {
+      vertex* vtemp = new vertex(itr->second[i]);
+      vtemp->indegree = indegrees.at(itr->second[i]);
+      v1->adjacents.push_back(vtemp);
+   
+    }
+    vertices.push_back(v1);
+    
+  }
+
+  topSort(vertices);
+  
+
+  /*
+  
+  for (int l = 0; l < vertices.size(); l++) {
+     cout << "vertex: " << vertices[l]->data << " | " <<vertices[l]->indegree<< endl;
+    for (int j = 0; j < vertices[l]->adjacents.size(); j++) {
+      
+      cout << "edge to: " << vertices[l]->adjacents[j]->data << " | " <<vertices[l]->adjacents[j]->indegree<< endl;
+    }
+  }
+  
+  */
+  
+}

@@ -1,0 +1,83 @@
+//Jack Lesemann, jwl4vg, 5/2/2021
+//Pre-lab 11
+
+#include <iostream>
+#include <fstream>
+#include <queue>
+#include <vector>
+#include <unordered_map>
+using namespace std;
+
+
+class graph {
+public:
+  unordered_map<vertex*, vector<vertex*>> vertices;
+	void addEdge(vertex* v1, vertex* v2);
+	void pushVert(vertex* v1);
+	void topSort();
+	
+	
+}
+
+class vertex {
+public:
+	int indegree;
+	string data;
+
+}
+
+void graph::addEdge(vertex* v1, vertex* v2) {
+	pushVert(v1);
+	v2->indegree++;
+	pushVert(v2);
+	vertices[v1].push_back(v2);
+}
+
+void graph::pushVert(vertex* v) {
+	unordered_map<vertex*,vector<vertex*>>::const_iterator itr = vertices.find(v);
+	
+	if (itr != vertices.end()) {
+		return;
+	} else {
+		vector<vertex*> vec;
+		vertices.emplace(v, vec);
+	}
+}
+
+void graph::topSort() {
+	queue<vertex*> q;
+	int counter =0;
+	vertex* v, w;
+	
+	for (auto itr1 = vertices.begin(); itr1 != vertices.end(); itr1++) {
+		v = itr1->first;
+		if(v->indegree == 0) 
+			q.push(v);
+	}
+	
+	while (!q.empty()) {
+		v = q.front();
+		q.pop()
+		cout << v->data << " ";
+		counter++;
+		
+		for(int i = 0; i < vertices[v].size(); i++) {
+			w = vertices[v][i];
+			if (--w->indegree == 0) {
+				q.push(w);
+			}
+		}
+	}
+
+  
+	
+	cout<< endl;
+	if (counter != verts.size())
+		cout << "Cycle found: " << endl;
+      
+  
+
+
+}
+
+
